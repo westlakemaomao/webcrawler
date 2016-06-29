@@ -11,6 +11,9 @@ public class HtmlResult {
 	private String publishTime;
 	private String source;
 	private String editor;
+	private String domain;
+	private String url;
+	private String remark;
 
 	public String getTitle() {
 		return title;
@@ -51,8 +54,34 @@ public class HtmlResult {
 	public void setEditor(String editor) {
 		this.editor = editor;
 	}
-  @Override
-  public String toString(){
-	  return "title:\n"+title+"\ncontent:\n"+content+"\neditor:\n"+editor+"\nsource:\n"+source+"\npublishTime:\n"+publishTime;
-  }
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	@Override
+	public String toString() {
+		return "title:\n" + title + "\ncontent:\n" + content + "\neditor:\n" + editor + "\nsource:\n" + source
+				+ "\npublishTime:\n" + publishTime + "\ndomain:\n" + domain + "\nurl:\n" + url + "\nremark:\n+remark";
+	}
 }
