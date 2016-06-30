@@ -27,7 +27,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import maoamo.WebCrawler.htmlUnit.domain.HtmlResult;
 import maoamo.WebCrawler.htmlUnit.domain.ParserElementsDomain;
-import us.codecraft.webmagic.Request;
+import maoamo.WebCrawler.htmlUnit.util.ReadWriteToLocal;
+import maoamo.WebCrawler.pipeLine.HttpPipeLine;
 import us.codecraft.xsoup.Xsoup;
 
 public class Spider {
@@ -91,9 +92,9 @@ public class Spider {
 
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(true);
-		webClient.getOptions().setTimeout(3000);
-		// webClient.setJavaScriptTimeout(100000);
-		// webClient.waitForBackgroundJavaScript(10000);
+		webClient.getOptions().setTimeout(3500);
+		 webClient.setJavaScriptTimeout(3000);
+//		 webClient.waitForBackgroundJavaScript(3000000);
 		// 3 启动客户端重定向
 		webClient.getOptions().setRedirectEnabled(true);
 	}
@@ -124,7 +125,7 @@ public class Spider {
 		if (parser.getSource() != null) {
 			htmlResult.setSource(Xsoup.select(page.asXml(), parser.getSource()).get());
 		}
-
+		htmlResult.setContent(page.asText());
 		return htmlResult;
 	}
 
@@ -132,19 +133,35 @@ public class Spider {
 
 		ParserElementsDomain parser = new ParserElementsDomain();
 		// xpath add /text() can get the text
-		parser.setTitle("//*[@id='postForm']/div[1]/div[1]/h1/a/span/text()");
-		parser.setContent("//*[@id='12881466997838675']");
+		parser.setTitle("/html/head/title/text()");
+//		parser.setContent("//*[@id='12881466997838675']");
 		try {
+			//get the last time crawled url
+			uniqueUrl=	ReadWriteToLocal.readTxt("D:\\Download\\test.txt");
+			System.out.println("uniqueUrl:" + uniqueUrl.size());
 			process("http://www.19lou.com", parser);
 			System.out.println("anchors:" + anchors.size());
-			while (anchors.size() != 0) {
+			HttpPipeLine hp= new HttpPipeLine();
+		label:	while (anchors.size() != 0) {
+			
+			try{
 				System.out.println("anchors:" + anchors.size());
 				String url = anchors.poll();
 				System.out.println("url:" + url);
+				//save the crawling url
+				ReadWriteToLocal.writeTxt("D:\\Download\\test.txt",url+"\n");
 				HtmlResult htmlResult = process(url, parser);
 				htmlResult.setUrl(url);
 				htmlResult.setDomain("www.19lou.com");
 				System.out.println(htmlResult.toString());
+				if(htmlResult.getTitle()!=null||!htmlResult.getTitle().equals("")){
+					hp.process(htmlResult, "19lou");
+				}
+			}catch(Exception e){
+				System.out.println("starts spider crawler again!!!" );
+				continue label;
+			}
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
