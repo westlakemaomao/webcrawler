@@ -68,7 +68,7 @@ public class HttpPipeLine implements Pipeline {
 	public void process(HtmlResult hr, String tableName) {
 		// TODO Auto-generated method stub
 		System.out.println("调用写入到ES程序");
- 	String url = URL + tableName;
+		String url = URL + tableName;
 		String json = JSON.toJSONString(hr);
 		HttpPipeLine.post(url, json);
 	}

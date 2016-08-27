@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import com.alibaba.fastjson.JSON;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -93,8 +94,8 @@ public class Spider {
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(true);
 		webClient.getOptions().setTimeout(3500);
-		 webClient.setJavaScriptTimeout(3000);
-//		 webClient.waitForBackgroundJavaScript(3000000);
+		webClient.setJavaScriptTimeout(3000);
+		// webClient.waitForBackgroundJavaScript(3000000);
 		// 3 启动客户端重定向
 		webClient.getOptions().setRedirectEnabled(true);
 	}
@@ -102,6 +103,7 @@ public class Spider {
 	public static HtmlResult process(String url, ParserElementsDomain parser)
 			throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
 		HtmlPage page = webClient.getPage(url);
+		System.out.println(page.asXml());
 		addAnchors(page, regex);
 		return getHtmlContent(page, parser);
 	}
@@ -134,34 +136,35 @@ public class Spider {
 		ParserElementsDomain parser = new ParserElementsDomain();
 		// xpath add /text() can get the text
 		parser.setTitle("/html/head/title/text()");
-//		parser.setContent("//*[@id='12881466997838675']");
+		// parser.setContent("//*[@id='12881466997838675']");
 		try {
-			//get the last time crawled url
-			uniqueUrl=	ReadWriteToLocal.readTxt("D:\\Download\\test.txt");
+			// get the last time crawled url
+			uniqueUrl = ReadWriteToLocal.readTxt("D:\\test\\saveUrl.txt");
 			System.out.println("uniqueUrl:" + uniqueUrl.size());
 			process("http://www.19lou.com", parser);
 			System.out.println("anchors:" + anchors.size());
-			HttpPipeLine hp= new HttpPipeLine();
-		label:	while (anchors.size() != 0) {
-			
-			try{
-				System.out.println("anchors:" + anchors.size());
-				String url = anchors.poll();
-				System.out.println("url:" + url);
-				//save the crawling url
-				ReadWriteToLocal.writeTxt("D:\\Download\\test.txt",url+"\n");
-				HtmlResult htmlResult = process(url, parser);
-				htmlResult.setUrl(url);
-				htmlResult.setDomain("www.19lou.com");
-				System.out.println(htmlResult.toString());
-				if(htmlResult.getTitle()!=null||!htmlResult.getTitle().equals("")){
-					hp.process(htmlResult, "19lou");
+			HttpPipeLine hp = new HttpPipeLine();
+			label: while (anchors.size() != 0) {
+				try {
+					System.out.println("anchors:" + anchors.size());
+					String url = anchors.poll();
+					System.out.println("url:" + url);
+					// save the crawling url
+					ReadWriteToLocal.writeTxt("D:\\test\\saveUrl.txt", url + "\n");
+					HtmlResult htmlResult = process(url, parser);
+					htmlResult.setUrl(url);
+					htmlResult.setDomain("www.19lou.com");
+					System.out.println(htmlResult.toString());
+					if (htmlResult.getTitle() != null || !htmlResult.getTitle().equals("")) {
+
+						// hp.process(htmlResult, "19lou");
+						System.out.println(JSON.toJSONString(htmlResult));
+					}
+				} catch (Exception e) {
+					System.out.println("starts spider crawler again!!!");
+					continue label;
 				}
-			}catch(Exception e){
-				System.out.println("starts spider crawler again!!!" );
-				continue label;
-			}
-				
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
