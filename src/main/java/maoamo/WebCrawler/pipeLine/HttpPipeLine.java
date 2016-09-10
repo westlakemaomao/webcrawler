@@ -25,7 +25,7 @@ import maoamo.WebCrawler.htmlUnit.domain.HtmlResult;
 public class HttpPipeLine implements Pipeline {
 
 	static HttpClient httpclient = HttpClients.createDefault();
-	private static String URL = "http://laodan.myqnapcloud.com:32774/crawler/";
+	private static String URL = "http://ldt.myqnapcloud.com:32770/crawler/";
 
 	public static String post(String url, String msg) {
 		BufferedReader br = null;
